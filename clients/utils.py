@@ -5,9 +5,9 @@ import string
 
 def generate_ch_id():
     """"
-    Generate a random ID with the prefix 'ch-' followed by 8 random alphanumeric characters.
+    Generate a random ID with the prefix 'cl-' followed by 8 random alphanumeric characters.
     """
-    prefix = "pg-"
+    prefix = "cl-"
     random_part = ''.join(random.choices(
         string.ascii_lowercase + string.digits, 
         k=8

@@ -7,6 +7,6 @@ urlpatterns = [
     # API endpoints v1
     path('api/v1/', include('accounts.urls')),
     path('api/v1/', include('programs.urls')),
-#     path('api/v1/clients/', include('clients.urls')),
+    path('api/v1/', include('clients.urls')),
 #     path('api/v1/enrollments/', include('enrollments.urls')),
 ]
