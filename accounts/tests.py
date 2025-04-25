@@ -128,3 +128,25 @@ class LogoutTests(APITestCase):
         data = {'refresh': 'invalid_token'}
         response = self.client.post(self.logout_url, data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class ProfileTests(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            email='test@example.com',
+            name='Test User',
+            password='testpass123'
+        )
+        self.client = APIClient()
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
+
+    def test_get_profile(self):
+        response = self.client.get(reverse('user_profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['email'], 'test@example.com')
+        self.assertEqual(response.data['name'], 'Test User')
+
+    def test_unauthenticated_access(self):
+        self.client.credentials()
+        response = self.client.get(reverse('user_profile'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
