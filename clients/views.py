@@ -19,7 +19,9 @@ class ClientListView(generics.ListAPIView):
     search_fields = ['first_name', 'last_name', 'phone_number', 'uuid', 'county', 'sub_county']
 
     def get_queryset(self):
-        return Client.objects.filter(created_by=self.request.user).prefetch_related('enrollments__program')
+        return Client.objects.filter(
+            created_by=self.request.user
+            ).prefetch_related('enrollments__program').order_by('-created_at')
 
 # Retrieve
 class ClientRetrieveView(generics.RetrieveAPIView):
@@ -28,7 +30,7 @@ class ClientRetrieveView(generics.RetrieveAPIView):
     lookup_field = 'uuid'
 
     def get_queryset(self):
-        return Client.objects.filter(created_by=self.request.user)
+        return Client.objects.filter(created_by=self.request.user).prefetch_related('enrollments__program')
 
 # Update
 class ClientUpdateView(generics.UpdateAPIView):
@@ -37,7 +39,7 @@ class ClientUpdateView(generics.UpdateAPIView):
     lookup_field = 'uuid'
 
     def get_queryset(self):
-        return Client.objects.filter(created_by=self.request.user)
+        return Client.objects.filter(created_by=self.request.user).prefetch_related('enrollments__program')
 
 # Delete
 class ClientDeleteView(generics.DestroyAPIView):
@@ -46,4 +48,4 @@ class ClientDeleteView(generics.DestroyAPIView):
     lookup_field = 'uuid'
 
     def get_queryset(self):
-        return Client.objects.filter(created_by=self.request.user)
+        return Client.objects.filter(created_by=self.request.user).prefetch_related('enrollments__program')
