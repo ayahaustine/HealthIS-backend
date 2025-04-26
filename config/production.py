@@ -4,10 +4,6 @@ import dj_database_url
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = False
-# ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-USE_PROD = os.environ.get('USE_PROD', 'False') == 'True'
-
-
 
 # db
 
@@ -34,18 +30,3 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ] + MIDDLEWARE 
-
-# LOGGING
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
