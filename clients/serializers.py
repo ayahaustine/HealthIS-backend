@@ -1,13 +1,13 @@
 from rest_framework import serializers
 from .models import Client
-from programs.serializers import ProgramSerializer
 from datetime import date
 from programs.models import Program
+
 
 class ClientSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
     created_by = serializers.StringRelatedField(read_only=True)
-    programs = ProgramSerializer(many=True, read_only=True)
+    programs = serializers.SerializerMethodField()
     
     # For writing relationships
     program_ids = serializers.PrimaryKeyRelatedField(
@@ -22,8 +22,7 @@ class ClientSerializer(serializers.ModelSerializer):
         model = Client
         fields = [
             'id', 'first_name', 'last_name', 'date_of_birth', 'age',
-            'gender', 'phone_number', 'county', 'sub_county', 'programs',
-            'program_ids', 'created_by', 'created_at', 'is_active'
+            'gender', 'phone_number', 'county', 'sub_county', 'programs', 'program_ids', 'created_by', 'created_at', 'is_active'
         ]
         read_only_fields = ['id', 'created_by', 'created_at', 'age', 'programs']
         extra_kwargs = {
@@ -58,3 +57,7 @@ class ClientSerializer(serializers.ModelSerializer):
                     f"You don't have permission to assign program {program.id}"
                 )
         return value
+    
+    def get_programs(self, obj):
+        from programs.serializers import ProgramSerializer
+        return ProgramSerializer(obj.programs.all(), many=True).data
