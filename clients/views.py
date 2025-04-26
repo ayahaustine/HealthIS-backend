@@ -3,6 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Client
 from .serializers import ClientSerializer
 from programs.models import Program
+from rest_framework.generics import ListAPIView
+from programs.serializers import ProgramSerializer
+from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import PermissionDenied
+
 
 class ClientViewSet(viewsets.ModelViewSet):
     serializer_class = ClientSerializer
