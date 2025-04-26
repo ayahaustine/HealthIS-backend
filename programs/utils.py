@@ -5,7 +5,7 @@ import string
 
 def generate_ch_id():
     """"
-    Generate a random ID with the prefix 'ch-' followed by 8 random alphanumeric characters.
+    Generate a random ID with the prefix 'pg-' followed by 8 random alphanumeric characters.
     """
     prefix = "pg-"
     random_part = ''.join(random.choices(

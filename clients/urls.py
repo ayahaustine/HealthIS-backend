@@ -1,11 +1,16 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import ClientViewSet
-router = DefaultRouter()
-router.register(r'clients', ClientViewSet, basename='client')
+from django.urls import path
+from clients.views import (
+    ClientCreateView,
+    ClientListView,
+    ClientRetrieveView,
+    ClientUpdateView,
+    ClientDeleteView,
+)
 
 urlpatterns = [
-    path('', include(router.urls)),
-    # path('<str:client_id>/programs/', ClientProgramsView.as_view(), name='client-programs'),
-
+    path('clients/', ClientListView.as_view(), name='client-list'),
+    path('clients/create/', ClientCreateView.as_view(), name='client-create'),
+    path('clients/<str:uuid>/', ClientRetrieveView.as_view(), name='client-retrieve'),
+    path('clients/<str:uuid>/update/', ClientUpdateView.as_view(), name='client-update'),
+    path('clients/<str:uuid>/delete/', ClientDeleteView.as_view(), name='client-delete'),
 ]

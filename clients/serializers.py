@@ -2,62 +2,47 @@ from rest_framework import serializers
 from .models import Client
 from datetime import date
 from programs.models import Program
+from enrollments.models import Enrollment
 
+class ProgramWithEnrollmentSerializer(serializers.Serializer):
+    uuid = serializers.CharField(source='program.uuid')
+    name = serializers.CharField(source='program.name')
+    description = serializers.CharField(source='program.description')
+    status = serializers.CharField(source='program.status')
+    enrolled_at = serializers.DateTimeField()
 
 class ClientSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
-    created_by = serializers.StringRelatedField(read_only=True)
+    created_by = serializers.SerializerMethodField()
     programs = serializers.SerializerMethodField()
-    
-    # For writing relationships
-    program_ids = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Program.objects.all(),
-        source='programs',
-        write_only=True,
-        required=False
-    )
 
     class Meta:
         model = Client
         fields = [
-            'id', 'first_name', 'last_name', 'date_of_birth', 'age',
-            'gender', 'phone_number', 'county', 'sub_county', 'programs', 'program_ids', 'created_by', 'created_at', 'is_active'
+            'uuid', 
+            'first_name', 
+            'last_name', 
+            'dob', 
+            'phone_number', 
+            'county', 
+            'sub_county',
+            'gender', 
+            'age', 
+            'programs', 
+            'created_at', 
+            'created_by'
         ]
-        read_only_fields = ['id', 'created_by', 'created_at', 'age', 'programs']
-        extra_kwargs = {
-            'date_of_birth': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'gender': {'required': True},
-            'phone_number': {'required': True},
-            'county': {'required': True},
-            'sub_county': {'required': True}
-
-        }
+        read_only_fields = ('uuid', 'created_by', 'created_at', 'age', 'programs')
 
     def get_age(self, obj):
         today = date.today()
-        return today.year - obj.date_of_birth.year - (
-            (today.month, today.day) < 
-            (obj.date_of_birth.month, obj.date_of_birth.day)
-        )
+        if obj.dob:
+            return today.year - obj.dob.year - ((today.month, today.day) < (obj.dob.month, obj.dob.day))
+        return None
 
-    def validate_date_of_birth(self, value):
-        if value > date.today():
-            raise serializers.ValidationError("Date of birth cannot be in the future")
-        return value
+    def get_created_by(self, obj):
+        return obj.created_by.email if obj.created_by else None
 
-    def validate_program_ids(self, value):
-        # Ensure user owns the programs they're trying to assign
-        user = self.context['request'].user
-        for program in value:
-            if program.created_by != user:
-                raise serializers.ValidationError(
-                    f"You don't have permission to assign program {program.id}"
-                )
-        return value
-    
     def get_programs(self, obj):
-        from programs.serializers import ProgramSerializer
-        return ProgramSerializer(obj.programs.all(), many=True).data
+        enrollments = obj.enrollments.select_related('program')
+        return ProgramWithEnrollmentSerializer(enrollments, many=True).data

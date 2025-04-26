@@ -1,31 +1,27 @@
 from rest_framework import serializers
 from .models import Enrollment
-from clients.serializers import ClientSerializer
-from programs.serializers import ProgramSerializer
 
 class EnrollmentSerializer(serializers.ModelSerializer):
-    client_details = ClientSerializer(source='client', read_only=True)
-    program_details = ProgramSerializer(source='program', read_only=True)
-    
+    client_name = serializers.SerializerMethodField()
+    program_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Enrollment
-        fields = [
-            'id', 'client', 'program', 'status', 'enrollment_date',
-            'completed_date', 'notes', 'client_details', 'program_details'
-        ]
-        read_only_fields = ['id', 'enrolled_by', 'enrollment_date']
-        extra_kwargs = {
-            'client': {'write_only': True},
-            'program': {'write_only': True}
-        }
+        fields = ['uuid', 'client', 'program', 'enrolled_at', 'client_name', 'program_name']
+        read_only_fields = ('uuid', 'enrolled_at', 'client_name', 'program_name')
 
-    def validate(self, data):
-        """
-        Ensure client and program belong to requesting user
-        """
-        user = self.context['request'].user
-        if data['client'].created_by != user:
-            raise serializers.ValidationError("You don't own this client")
-        if data['program'].created_by != user:
-            raise serializers.ValidationError("You don't own this program")
-        return data
+    def get_client_name(self, obj):
+        return f"{obj.client.first_name} {obj.client.last_name}"
+
+    def get_program_name(self, obj):
+        return obj.program.name
+    
+    def validate(self, attrs):
+        request = self.context['request']
+        client = attrs.get('client')
+        
+        # Make sure the client belongs to the current user
+        if client.created_by != request.user:
+            raise serializers.ValidationError("You can only enroll clients you created.")
+
+        return attrs

@@ -1,36 +1,36 @@
+from django.conf import settings
 from django.db import models
+import uuid
 from clients.models import Client
 from programs.models import Program
-from accounts.models import User
-import uuid
-from django.utils import timezone
-
 
 class Enrollment(models.Model):
-    STATUS_CHOICES = [
-        ('ACTIVE', 'Active'),
-        ('COMPLETED', 'Completed'),
-        ('DROPPED', 'Dropped Out'),
-        ('PAUSED', 'Paused')
-    ]
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='enrollments')
-    program = models.ForeignKey(Program, on_delete=models.CASCADE)
-    enrolled_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    enrollment_date = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
-    completed_date = models.DateField(null=True, blank=True)
-    notes = models.TextField(blank=True)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    client = models.ForeignKey(
+        Client,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
+    )
+    program = models.ForeignKey(
+        Program,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='enrollments'
+    )
+    enrolled_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = [('client', 'program')]
-        ordering = ['-enrollment_date']
-
-    def save(self, *args, **kwargs):
-        if self.status == 'COMPLETED' and not self.completed_date:
-            self.completed_date = timezone.now().date()
-        super().save(*args, **kwargs)
+        ordering = ['-enrolled_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['client', 'program'],
+                name='unique_client_program'
+            )
+        ]
 
     def __str__(self):
-        return f"{self.client} in {self.program} ({self.status})"
+        return f"{self.client} in {self.program}"

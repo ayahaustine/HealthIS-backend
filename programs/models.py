@@ -1,15 +1,34 @@
-import uuid
-from django.db import models
-from accounts.models import User
 from . utils import CustomIDField
+from django.conf import settings
+from django.db import models
+import uuid
 
 class Program(models.Model):
-    id = CustomIDField(primary_key=True)
-    name = models.CharField(max_length=100, unique=True)
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('archived', 'Archived'),
+    ]
+
+    uuid = CustomIDField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='active'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='programs'
+    )
+
+    class Meta:
+        indexes =  [
+            models.Index(fields=['name', 'created_by', 'created_at']),
+        ]
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.name
