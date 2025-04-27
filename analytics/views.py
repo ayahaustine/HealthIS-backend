@@ -165,14 +165,16 @@ class MonthlyClientsAndProgramsView(APIView):
     def get(self, request, *args, **kwargs):
         query = """
             SELECT
-                EXTRACT(MONTH FROM c.created_at) AS month,
-                EXTRACT(YEAR FROM c.created_at) AS year,
+                EXTRACT(MONTH FROM e.enrolled_at) AS month,
+                EXTRACT(YEAR FROM e.enrolled_at) AS year,
                 COUNT(DISTINCT c.uuid) AS total_clients,
                 COUNT(DISTINCT p.uuid) AS total_programs
             FROM
                 clients_client c
-            LEFT JOIN
-                programs_program p ON p.created_at <= c.created_at
+            JOIN
+                enrollments_enrollment e ON e.client_id = c.id
+            JOIN
+                programs_program p ON p.id = e.program_id
             GROUP BY
                 year, month
             ORDER BY
