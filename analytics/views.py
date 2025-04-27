@@ -152,3 +152,52 @@ class MonthlyEnrollmentsView(APIView):
             monthly_enrollments[year][month] = total_enrollments
 
         return Response(monthly_enrollments)
+    
+
+
+class MonthlyClientsAndProgramsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """
+    Monthly Clients and Programs (Client and Program count across all programs)
+    """
+
+    def get(self, request, *args, **kwargs):
+        query = """
+            SELECT
+                EXTRACT(MONTH FROM c.created_at) AS month,
+                EXTRACT(YEAR FROM c.created_at) AS year,
+                COUNT(DISTINCT c.uuid) AS total_clients,
+                COUNT(DISTINCT p.uuid) AS total_programs
+            FROM
+                clients_client c
+            LEFT JOIN
+                programs_program p ON p.created_at <= c.created_at
+            GROUP BY
+                year, month
+            ORDER BY
+                year DESC, month DESC;
+        """
+        
+        result = execute_raw_sql(query)
+
+        # process the result into a more readable format
+        monthly_data = {
+            "months": [],
+            "clients": [],
+            "programs": []
+        }
+
+        for row in result:
+            month = int(row[0])
+            year = int(row[1])
+            total_clients = row[2]
+            total_programs = row[3]
+
+            # format month and year as "YYYY-MM"
+            month_year = f"{year}-{month:02d}"
+            monthly_data["months"].append(month_year)
+            monthly_data["clients"].append(total_clients)
+            monthly_data["programs"].append(total_programs)
+
+        return Response(monthly_data)
