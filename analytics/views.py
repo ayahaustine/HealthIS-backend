@@ -202,3 +202,43 @@ class MonthlyClientsAndProgramsView(APIView):
             monthly_data["programs"].append(total_programs)
 
         return Response(monthly_data)
+    
+
+
+class ProgramDistributionView(APIView):
+    permission_classes = [IsAuthenticated]
+    """
+    Program Distribution View (Bar Chart data)
+    """
+
+    def get(self, request, *args, **kwargs):
+        query = """
+            SELECT
+                p.name AS program_name,
+                COUNT(e.client_id) AS total_clients
+            FROM
+                enrollments_enrollment e
+            JOIN
+                programs_program p ON e.program_id = p.uuid
+            GROUP BY
+                p.name
+            ORDER BY
+                total_clients DESC;
+        """
+        
+        result = execute_raw_sql(query)
+
+        # process the result into a more readable format
+        program_distribution = {
+            "program_names": [],
+            "client_counts": []
+        }
+
+        for row in result:
+            program_name = row[0]
+            total_clients = row[1]
+
+            program_distribution["program_names"].append(program_name)
+            program_distribution["client_counts"].append(total_clients)
+
+        return Response(program_distribution)

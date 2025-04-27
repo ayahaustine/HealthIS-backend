@@ -7,4 +7,5 @@ urlpatterns = [
     path('enrollments/', EnrollmentsView.as_view(), name='enrollments'),
     path('monthly_enrollments/', MonthlyEnrollmentsView.as_view(), name='monthly_enrollment'),
     path('monthly_clients_programs/', MonthlyClientsAndProgramsView.as_view(), name='monthly_clients_programs'),
+    path('program_distribution/', ProgramDistributionView.as_view(), name='program_distribution'),
 ]
