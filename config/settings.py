@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'accounts',
     'programs',
     'enrollments',
+    'public',
+    'analytics',
 
 ]
 
