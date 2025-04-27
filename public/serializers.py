@@ -3,10 +3,10 @@ from clients.models import Client
 from enrollments.models import Enrollment
 from programs.models import Program
 
-class PublicProgramMiniSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Program
-        fields = ['name', 'description']
+class PublicProgramEnrollmentSerializer(serializers.Serializer):
+    name = serializers.CharField(source='program.name')
+    description = serializers.CharField(source='program.description')
+    enrolled_at = serializers.DateTimeField()
 
 class PublicClientSerializer(serializers.ModelSerializer):
     programs = serializers.SerializerMethodField()
@@ -19,6 +19,5 @@ class PublicClientSerializer(serializers.ModelSerializer):
         ]
 
     def get_programs(self, obj):
-        enrollments = obj.enrollments.select_related('program')
-        programs = [enrollment.program for enrollment in enrollments]
-        return PublicProgramMiniSerializer(programs, many=True).data
+        enrollments = obj.enrollments.select_related('program').all()
+        return PublicProgramEnrollmentSerializer(enrollments, many=True).data
