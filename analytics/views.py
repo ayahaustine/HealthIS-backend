@@ -113,3 +113,42 @@ class EnrollmentsView(APIView):
             "enrollments": current_count,
             "growth_percentage": growth_percentage
         })
+
+
+
+class MonthlyEnrollmentsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """"
+    Monthly Enrollments (Client enrollment across all programs)
+    """
+
+    def get(self, request, *args, **kwargs):
+        query = """
+            SELECT
+                EXTRACT(MONTH FROM e.enrolled_at) AS month,
+                EXTRACT(YEAR FROM e.enrolled_at) AS year,
+                COUNT(*) AS total_enrollments
+            FROM
+                enrollments_enrollment e
+            GROUP BY
+                year, month
+            ORDER BY
+                year DESC, month DESC;
+        """
+        
+        result = execute_raw_sql(query)
+        
+        # Process the result into a more readable format (grouped by month and year)
+        monthly_enrollments = {}
+        for row in result:
+            year = int(row[1])
+            month = int(row[0])
+            total_enrollments = row[2]
+
+            if year not in monthly_enrollments:
+                monthly_enrollments[year] = {}
+
+            monthly_enrollments[year][month] = total_enrollments
+
+        return Response(monthly_enrollments)
