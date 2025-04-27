@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/v1/', include('clients.urls')),
     path('api/v1/', include('enrollments.urls')),
     path('api/v1/public/', include('public.urls')),
+    path('api/v1/analytics/', include('analytics.urls')),
 ]
