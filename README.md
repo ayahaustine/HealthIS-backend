@@ -3,6 +3,7 @@
 - Health Information System
 
 - The API documentation: https://documenter.getpostman.com/view/25116831/2sB2j1hCDs
+- ProjecT presentation/demo : https://docs.google.com/presentation/d/1iuxIGssFTAfYcSf0TL7liXoxQISucsQiIU3pWjTFamc/edit?usp=sharing
 
 ## ER diagram
 ![Database Overview](./ERD.png)
