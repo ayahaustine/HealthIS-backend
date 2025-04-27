@@ -157,24 +157,23 @@ class MonthlyEnrollmentsView(APIView):
 
 class MonthlyClientsAndProgramsView(APIView):
     permission_classes = [IsAuthenticated]
-
     """
-    Monthly Clients and Programs (Client and Program count across all programs)
+    Monthly Clients and Programs (Client enrollment across all programs)    
     """
 
     def get(self, request, *args, **kwargs):
         query = """
             SELECT
-                EXTRACT(MONTH FROM e.enrolled_at) AS month,
                 EXTRACT(YEAR FROM e.enrolled_at) AS year,
-                COUNT(DISTINCT c.uuid) AS total_clients,
-                COUNT(DISTINCT p.uuid) AS total_programs
+                EXTRACT(MONTH FROM e.enrolled_at) AS month,
+                COUNT(DISTINCT e.client_id) AS total_clients,
+                COUNT(DISTINCT e.program_id) AS total_programs
             FROM
-                clients_client c
+                enrollments_enrollment e
             JOIN
-                enrollments_enrollment e ON e.client_id = c.id
+                clients_client c ON e.client_id = c.id
             JOIN
-                programs_program p ON p.id = e.program_id
+                programs_program p ON e.program_id = p.id
             GROUP BY
                 year, month
             ORDER BY
@@ -191,8 +190,8 @@ class MonthlyClientsAndProgramsView(APIView):
         }
 
         for row in result:
-            month = int(row[0])
-            year = int(row[1])
+            year = int(row[0])
+            month = int(row[1])
             total_clients = row[2]
             total_programs = row[3]
 
