@@ -2,37 +2,6 @@
 - Serves the healthIS frontend
 - Health Information System
 
-## ER diagram
-![Database Overview](./ERD.png)
-
-
-## Overview
-
-HealthIS is a simple yet powerful health information system.  
-It allows doctors (system users) to:
-- Create health programs (e.g., TB, Malaria, HIV)
-- Register clients
-- Enroll clients into programs
-- Search and view client profiles
-- Expose client profiles via a secure API
-
-
-## Features
-
-- ✅ Health Programs CRUD
-- ✅ Client Registration and Management
-- ✅ Client Enrollment into Programs
-- ✅ Global Client Search
-- ✅ Client Profile API Exposure
-- ✅ Generated Analytics
-
-
-## Technology Stack
-
-- **Backend:** Django REST Framework
-- **Database:** PostgreSQL
-
-
 ## Setup
 
 ### Prerequisites
